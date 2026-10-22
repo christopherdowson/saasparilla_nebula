@@ -1273,3 +1273,100 @@ html body .nebula-switch-label {
 html body .nebula-switch-label--on {
   color: var(--sp-ink);
 }
+
+/* ------------------------------------------------------------------ */
+/* Round 12: style census, leftovers across fourteen views             */
+/* ------------------------------------------------------------------ */
+
+/* Body text is ink, never pure black */
+html body {
+  color: var(--sp-ink);
+}
+
+/* Wordmark: Nebula pins text-lg with !important, so the label size needs the same weight */
+html body .nebula-sidebar-logo a > span.nebula-menu-text {
+  font-size: 13px !important;
+}
+
+/* Theme switcher panel and its options: ruled, square, on the ink, no drop shadow */
+html body .siteation-nebula-sidebar-switcher__panel {
+  border-radius: 0;
+  border: 1px solid #3a3936;
+  background: var(--nebula-sidebar-from);
+  box-shadow: none;
+}
+html body .siteation-nebula-sidebar-switcher__option {
+  border-radius: 0;
+  color: var(--nebula-sidebar-text);
+}
+html body .siteation-nebula-sidebar-switcher__option:hover {
+  background: var(--nebula-sidebar-text-active);
+  color: #141413;
+}
+
+/* Square corners where Nebula sets a radius directly rather than through a token */
+html body .nebula-dashboard-quicklink,
+html body .nebula-dashboard-quicklink__icon,
+html body .nebula-dashboard-chart-period__select,
+html body .nebula-quill-toggle,
+html body .nebula-quill-source-button,
+html body .nebula-quill-lossy,
+html body .nebula-grid__popover-trigger {
+  border-radius: 0 !important;
+}
+html body .nebula-serp {
+  background: var(--nebula-bg-secondary);
+  border: 1px solid var(--sp-line);
+}
+html body .nebula-notification-counter {
+  box-shadow: none;
+}
+
+/* Legacy form controls on configuration and bridged pages follow the input tokens */
+html body .nebula-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]):not([type="file"]):not([type="range"]):not([type="color"]), select, textarea):not(.nebula-control):not(.nebula-grid-input):not(.nebula-switch) {
+  background-color: var(--nebula-input-bg);
+  border: 1px solid var(--sp-line);
+  border-radius: 0;
+  color: var(--sp-ink);
+  font-family: inherit;
+}
+html body .nebula-main :is(input, select, textarea):not(.nebula-control):not(.nebula-grid-input):focus {
+  border-color: var(--sp-rule);
+  outline: none;
+  box-shadow: none;
+}
+
+/* Medium is the heaviest weight */
+html body .nebula-stat__value--strong,
+html body .nebula-grid__muted,
+html body .nebula-grid__popover-trigger,
+html body .nebula-content th {
+  font-weight: 500;
+}
+
+/* Links that read as actions, not state */
+html body .nebula-disclosure,
+html body .nebula-upload-zone__accent {
+  color: var(--nebula-text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in oklab, currentColor 40%, transparent);
+}
+html body .nebula-disclosure:hover,
+html body .nebula-upload-zone__accent:hover {
+  color: var(--sp-ink);
+}
+
+/* Dark mode: Nebula gives the page bar's links a slate colour with !important */
+html.dark body .nebula-page-actions :is(a, button, span) {
+  color: var(--sp-ink);
+}
+
+/* Legacy action buttons (Save Config) and the dark page bar's links use literal colours */
+html body .nebula-page-actions .action-default,
+html body .nebula-page-actions .action-secondary {
+  color: var(--sp-ink);
+}
+html.dark body .nebula-page-actions :is(a, button, span):not(.nebula-btn--primary) {
+  color: var(--sp-ink) !important;
+}
