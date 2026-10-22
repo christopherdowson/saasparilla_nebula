@@ -1222,3 +1222,11 @@ html body .nebula-icon-btn:hover {
 html body .nebula-quill-toggle {
   color: var(--sp-on-accent);
 }
+
+/* Order totals and inline controls use a literal black in Nebula; follow the ink token in dark mode */
+html.dark body .nebula-stat__value--strong,
+html.dark body .nebula-stat__value,
+html.dark body .nebula-inline-control,
+html.dark body .nebula-inline-control input {
+  color: var(--nebula-text-primary);
+}
