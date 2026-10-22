@@ -2,7 +2,7 @@
 
 A free theme for the Magento Open Source admin. It needs [Nebula](https://qoliber.com/nebula-admin.html), Qoliber's replacement for the standard Magento admin, which is free with a key from their site; this theme changes how Nebula looks.
 
-The look comes from [Saasparilla](https://saasparilla.vercel.app), a design system by Christopher Dowson: paper-coloured surfaces, thin black lines where other admins use boxed panels, square corners, no drop shadows, the Archivo typeface, and a single orange kept for the current page, today, and the main button on a screen.
+The look comes from [Saasparilla](https://saasparilla.vercel.app), a design system by Christopher Dowson: paper-coloured surfaces, thin black lines where other admins use boxed panels, square corners, no drop shadows, the Archivo typeface, and colour used sparingly: one orange for the current page, today and the main button on a screen, flat blue and lavender panels to set areas of the dashboard apart, and green, amber and red only to say how something is doing.
 
 ![The dashboard](docs/dashboard.png)
 
