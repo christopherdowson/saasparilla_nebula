@@ -1230,3 +1230,46 @@ html.dark body .nebula-inline-control,
 html.dark body .nebula-inline-control input {
   color: var(--nebula-text-primary);
 }
+
+/* ------------------------------------------------------------------ */
+/* Round 11: switches as Saasparilla draws them                        */
+/* ------------------------------------------------------------------ */
+
+/* Off: a ruled track on the raised surface with an ink square knob.
+   On: the track fills with ink and the knob takes the accent.
+   Nebula's off track used the strong border token, which is ink here, so
+   off and on were the same solid block. */
+html body .nebula-switch {
+  --_switch-pad: 5px;
+  border-radius: 0;
+  border: 1px solid var(--sp-rule);
+  background-color: var(--nebula-input-bg);
+  box-sizing: border-box;
+  transition: background-color 120ms;
+}
+html body .nebula-switch::after {
+  height: calc(var(--_switch-height) - var(--_switch-pad) * 2 - 2px);
+  width: calc(var(--_switch-height) - var(--_switch-pad) * 2 - 2px);
+  border-radius: 0;
+  background: var(--sp-ink);
+  box-shadow: none;
+  transition: translate 150ms, background-color 120ms;
+}
+html body .nebula-switch[aria-checked="true"] {
+  background-color: var(--sp-ink);
+  border-color: var(--sp-ink);
+}
+html body .nebula-switch[aria-checked="true"]::after {
+  background: var(--sp-accent);
+}
+html body .nebula-switch:focus-visible {
+  outline: 2px solid var(--sp-accent);
+  outline-offset: 2px;
+}
+/* The word beside a switch stays on one line */
+html body .nebula-switch-label {
+  white-space: nowrap;
+}
+html body .nebula-switch-label--on {
+  color: var(--sp-ink);
+}
