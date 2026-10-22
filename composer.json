@@ -4,7 +4,7 @@
     "type": "magento2-module",
     "license": "MIT",
     "keywords": ["magento2", "nebula", "admin theme", "saasparilla", "tailwind"],
-    "homepage": "https://github.com/mfrg/nebula-saasparilla",
+    "homepage": "https://github.com/christopherdowson/saasparilla_nebula",
     "authors": [
         { "name": "Christopher Dowson", "homepage": "https://myfirstraygun.studio" }
     ],

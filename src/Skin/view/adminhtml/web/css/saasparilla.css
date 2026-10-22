@@ -1370,3 +1370,12 @@ html body .nebula-page-actions .action-secondary {
 html.dark body .nebula-page-actions :is(a, button, span):not(.nebula-btn--primary) {
   color: var(--sp-ink) !important;
 }
+
+/* Configuration section list: the same 11px wide label as every other label */
+html body.nebula-config-nav-sidebar .nebula-main .uppercase {
+  font-size: 11px;
+  line-height: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  font-stretch: 118%;
+}
