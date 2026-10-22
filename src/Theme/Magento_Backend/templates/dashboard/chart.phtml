@@ -1,0 +1,142 @@
+<?php
+/**
+ * MFRG Saasparilla: dashboard chart drawn with Saasparilla's SVG line chart.
+ *
+ * Keeps Nebula's data fetch, period select and tab events; replaces the
+ * Chart.js canvas with window.SaasparillaCharts.lineChart, so the chart is
+ * ink on paper, the current period is orange, and a hidden table carries
+ * the values for screen readers.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
+ */
+
+$htmlId = $block->getData('html_id');
+$updateUrl = $block->getUrl($block->getData('update_url'), ['_current' => true]);
+$precision = (int) ($block->getData('chart_precision') ?: 0);
+$hostId = 'sp_chart_' . $htmlId;
+?>
+<div x-data="spChart_<?= $escaper->escapeHtmlAttr($htmlId) ?>()"
+     x-init="$nextTick(() => loadChart())"
+     @nebula-chart-reload.window="loadChart($event.detail)"
+     @nebula-chart-tab-visible.window="if ($event.detail === '<?= $escaper->escapeJs($htmlId) ?>') { loadChart(_pendingPeriod || null); _pendingPeriod = undefined; }"
+     class="nebula-dashboard-chart">
+    <div id="<?= $escaper->escapeHtmlAttr($hostId) ?>" class="sp-chart" x-show="!noData"></div>
+    <div x-show="loading" class="nebula-dashboard-chart__loading">
+        <svg class="nebula-dashboard-chart__spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+    </div>
+    <div x-show="noData && !loading" x-cloak class="nebula-dashboard-chart__empty">
+        <p class="nebula-dashboard-chart__empty-text"><?= $escaper->escapeHtml(__('No data for this period')) ?></p>
+    </div>
+</div>
+
+<?php ob_start(); ?>
+    function spChart_<?= $escaper->escapeJs($htmlId) ?>() {
+        return {
+            chart: null,
+            loading: true,
+            noData: false,
+
+            // Labels arrive as "2026-10-22 09:00", "2026-10-22" or "2026-10": keep what varies
+            shortLabel(label) {
+                const s = String(label);
+                let m = s.match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}:\d{2})/);
+                if (m) return m[4];
+                m = s.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+                if (m) return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])).toLocaleDateString(undefined, { day: 'numeric', month: 'short', timeZone: 'UTC' });
+                m = s.match(/^(\d{4})-(\d{2})$/);
+                if (m) return new Date(Date.UTC(+m[1], +m[2] - 1, 1)).toLocaleDateString(undefined, { month: 'short', timeZone: 'UTC' });
+                return s;
+            },
+
+            async rendererReady() {
+                for (let i = 0; i < 40 && !window.SaasparillaCharts; i++) {
+                    await new Promise(r => setTimeout(r, 50));
+                }
+                return !!window.SaasparillaCharts;
+            },
+
+            async loadChart(period) {
+                if (typeof period !== 'string') {
+                    period = null;
+                }
+                const host = document.getElementById('<?= $escaper->escapeJs($hostId) ?>');
+                if (host && host.offsetParent === null) {
+                    this._pendingPeriod = period;
+                    return;
+                }
+
+                this.loading = true;
+                this.noData = false;
+
+                const periodSelect = document.getElementById('dashboard_chart_period');
+                const selectedPeriod = period || (periodSelect ? periodSelect.value : '24h');
+
+                try {
+                    const formKey = document.querySelector('[name="form_key"]')?.value || '';
+                    const response = await fetch('<?= $escaper->escapeJs($updateUrl) ?>', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: new URLSearchParams({ period: selectedPeriod, form_key: formKey, isAjax: 'true' })
+                    });
+                    const json = await response.json();
+                    const items = json.data || [];
+
+                    if (!items.length || !host || !(await this.rendererReady())) {
+                        this.noData = true;
+                        this.loading = false;
+                        return;
+                    }
+
+                    const labels = items.map(i => this.shortLabel(i.label || i.x || ''));
+                    const fullLabels = items.map(i => String(i.label || i.x || ''));
+                    const values = items.map(i => parseFloat(i.value || i.y || 0) || 0);
+                    const precision = <?= $precision ?>;
+                    const nf = new Intl.NumberFormat(undefined, { minimumFractionDigits: precision, maximumFractionDigits: precision });
+                    const format = v => nf.format(v);
+
+                    if (this.chart) {
+                        this.chart.destroy();
+                        this.chart = null;
+                    }
+                    host.replaceChildren();
+                    this.chart = window.SaasparillaCharts.lineChart(host, {
+                        labels,
+                        series: [{ name: json.label || '<?= $escaper->escapeJs(ucfirst($htmlId)) ?>', color: 'var(--sp-chart-ink)', values }],
+                        format,
+                        axisFormat: v => (precision === 0 && !Number.isInteger(v)) ? '' : new Intl.NumberFormat(undefined, { maximumFractionDigits: precision, notation: values.some(x => x >= 10000) ? 'compact' : 'standard' }).format(v),
+                        height: 280,
+                        caption: (json.label || '<?= $escaper->escapeJs(ucfirst($htmlId)) ?>') + ' (' + fullLabels[0] + ' to ' + fullLabels[fullLabels.length - 1] + ')'
+                    });
+                    // The current period takes the accent: the end dot sits directly under the svg
+                    requestAnimationFrame(() => {
+                        const dot = host.querySelector('svg > circle.chart-dot');
+                        if (dot) dot.setAttribute('fill', 'var(--sp-accent)');
+                    });
+                } catch (e) {
+                    console.error('Chart load failed:', e);
+                    this.noData = true;
+                }
+
+                this.loading = false;
+            }
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const periodSelect = document.getElementById('dashboard_chart_period');
+        if (periodSelect) {
+            periodSelect.addEventListener('change', function () {
+                window.dispatchEvent(new CustomEvent('nebula-chart-reload', { detail: periodSelect.value }));
+            });
+        }
+    });
+<?php $chartScript = ob_get_clean(); ?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $chartScript, false) ?>

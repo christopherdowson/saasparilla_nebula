@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<!-- Loads the Archivo variable font on every admin page. Colours come from the skin JSON. -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="MFRG_SaasparillaSkin::css/saasparilla.css"/>
+    </head>
+</page>

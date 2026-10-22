@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <mfrg_dashboard>
+            <targets>
+                <orders_per_day>5</orders_per_day>
+                <overdue_days>2</overdue_days>
+            </targets>
+        </mfrg_dashboard>
+    </default>
+</config>

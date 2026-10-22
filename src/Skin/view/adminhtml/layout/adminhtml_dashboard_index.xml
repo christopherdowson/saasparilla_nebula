@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<!-- Saasparilla's SVG chart renderer for the dashboard. The chart template in the
+     MFRG/saasparilla theme calls window.SaasparillaCharts instead of Chart.js. -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <script src="MFRG_SaasparillaSkin::js/saasparilla-charts.js" defer="defer"/>
+    </head>
+</page>

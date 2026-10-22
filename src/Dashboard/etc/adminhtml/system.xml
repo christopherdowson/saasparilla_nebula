@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="mfrg" translate="label" sortOrder="950">
+            <label>MFRG</label>
+        </tab>
+        <section id="mfrg_dashboard" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+            <label>Dashboard</label>
+            <tab>mfrg</tab>
+            <resource>MFRG_SaasparillaDashboard::config</resource>
+            <group id="targets" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Targets</label>
+                <comment>Set the orders a day worth marking as a hit, and when an unshipped order counts as overdue.</comment>
+                <field id="orders_per_day" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Orders a day target</label>
+                    <comment>A day with at least this many orders counts as a hit on the calendar.</comment>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                </field>
+                <field id="overdue_days" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Overdue after (days)</label>
+                    <comment>An order that is new or processing with no shipment after this many days is overdue.</comment>
+                    <validate>validate-digits validate-zero-or-greater</validate>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

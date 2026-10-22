@@ -1,0 +1,203 @@
+<?php
+/**
+ * Dashboard instruments in the Saasparilla cells grid.
+ *
+ * @var \Magento\Backend\Block\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
+ * @var \MFRG\SaasparillaDashboard\ViewModel\Instruments $vm
+ */
+$vm = $block->getData('view_model');
+$d = $vm->getData();
+
+$revenue = $vm->money($d['revenue']);
+$aov = $vm->money($d['aov']);
+$deltas = [
+    'revenue' => $vm->delta($d['revenue'], $d['revenue_prev']),
+    'orders' => $vm->delta((float) $d['orders'], (float) $d['orders_prev']),
+    'customers' => $vm->delta((float) $d['customers'], (float) $d['customers_prev']),
+    'aov' => $vm->delta($d['aov'], $d['aov_prev']),
+];
+$arrowUp = '<svg class="sp-delta__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 12 12 4M6 4h6v6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+$arrowDown = '<svg class="sp-delta__icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 6v6H6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+$deltaHtml = static function (?float $pct) use ($arrowUp, $arrowDown, $escaper): string {
+    if ($pct === null) {
+        return '';
+    }
+    $good = $pct >= 0;
+    return '<span class="sp-delta ' . ($good ? 'sp-delta--good' : 'sp-delta--bad') . '">'
+        . ($good ? $arrowUp : $arrowDown)
+        . $escaper->escapeHtml(($good ? '+' : '-') . number_format(abs($pct), 1) . '%')
+        . '</span>';
+};
+$vs = $escaper->escapeHtml(__('vs %1', $d['prev_month_name']));
+$cal = $d['calendar'];
+$overdue = $d['overdue'];
+$chartConfig = [
+    'currency' => $vm->getCurrencyCode(),
+    'locale' => $vm->getLocale(),
+    'sticks' => $d['sticks'],
+    'dumbbell' => $d['dumbbell'],
+    'calendar' => ['days' => $cal['days'], 'offset' => $cal['offset']],
+    'captions' => [
+        'revenue' => (string) __('Revenue by month'),
+        'aov' => (string) __('Average order value, %1 and %2', $d['dumbbell']['year'], $d['dumbbell']['last_year']),
+        'calendar' => (string) __('Daily orders, %1', $d['month_name']),
+        'thisYear' => (string) $d['dumbbell']['year'],
+        'lastYear' => (string) $d['dumbbell']['last_year'],
+    ],
+];
+?>
+<section class="sp-instruments" aria-label="<?= $escaper->escapeHtmlAttr(__('Figures for %1', $d['month_name'])) ?>">
+    <div class="sp-cells">
+
+        <section class="sp-cell sp-cell--hero" aria-labelledby="sp-revenue-title">
+            <div class="sp-cell-head">
+                <h2 id="sp-revenue-title" class="sp-cell-title"><?= $escaper->escapeHtml(__('Revenue, %1', $d['month_name'])) ?></h2>
+                <?= /* @noEscape */ $deltaHtml($deltas['revenue']) ?>
+            </div>
+            <p class="sp-figure sp-figure--hero"><?= $escaper->escapeHtml($revenue['whole']) ?><span class="sp-figure-dim"><?= $escaper->escapeHtml($revenue['decimals']) ?></span></p>
+            <p class="sp-cell-note"><?= $escaper->escapeHtml(__('%1 in %2', $vm->moneyText($d['revenue_prev']), $d['prev_month_name'])) ?> &middot; <?= $escaper->escapeHtml(__('%1 lifetime', $vm->moneyText($d['revenue_lifetime']))) ?></p>
+            <div class="sp-cell-chart sp-cell-chart--bottom" data-sp-chart="sticks"></div>
+        </section>
+
+        <section class="sp-cell sp-cell--stat">
+            <h2 class="sp-cell-title"><?= $escaper->escapeHtml(__('Orders')) ?></h2>
+            <div>
+                <p class="sp-figure sp-figure--lg"><?= (int) $d['orders'] ?></p>
+                <p class="sp-cell-meta"><?= /* @noEscape */ $deltaHtml($deltas['orders']) ?> <?= $deltas['orders'] === null ? $escaper->escapeHtml(__('%1 in %2', $d['orders_prev'], $d['prev_month_name'])) : $vs ?></p>
+            </div>
+        </section>
+
+        <section class="sp-cell sp-cell--stat">
+            <h2 class="sp-cell-title"><?= $escaper->escapeHtml(__('New customers')) ?></h2>
+            <div>
+                <p class="sp-figure sp-figure--lg"><?= (int) $d['customers'] ?></p>
+                <p class="sp-cell-meta"><?= /* @noEscape */ $deltaHtml($deltas['customers']) ?> <?= $deltas['customers'] === null ? $escaper->escapeHtml(__('%1 in %2', $d['customers_prev'], $d['prev_month_name'])) : $vs ?></p>
+            </div>
+        </section>
+
+        <section class="sp-cell sp-cell--stat">
+            <h2 class="sp-cell-title"><?= $escaper->escapeHtml(__('Average order')) ?></h2>
+            <div>
+                <p class="sp-figure sp-figure--lg"><?= $escaper->escapeHtml($aov['whole']) ?><span class="sp-figure-dim"><?= $escaper->escapeHtml($aov['decimals']) ?></span></p>
+                <p class="sp-cell-meta"><?= /* @noEscape */ $deltaHtml($deltas['aov']) ?> <?= $deltas['aov'] === null ? $escaper->escapeHtml(__('%1 in %2', $vm->moneyText($d['aov_prev']), $d['prev_month_name'])) : $vs ?></p>
+            </div>
+        </section>
+
+        <a href="<?= $escaper->escapeUrl($vm->getOrdersUrl()) ?>" class="sp-cell sp-cell--stat sp-tone-accent sp-cell--link"
+           aria-label="<?= $escaper->escapeHtmlAttr(__('Overdue: %1 orders. Open orders', $overdue['count'])) ?>">
+            <span class="sp-cell-head">
+                <span class="sp-cell-title"><?= $escaper->escapeHtml(__('Overdue')) ?></span>
+                <span class="sp-cell-arrow"><?= /* @noEscape */ $arrowUp ?></span>
+            </span>
+            <span>
+                <span class="sp-figure sp-figure--lg sp-block"><?= (int) $overdue['count'] ?></span>
+                <span class="sp-cell-meta sp-block">
+                    <?php if ($overdue['oldest_days'] !== null): ?>
+                        <?= $escaper->escapeHtml(__('Oldest placed %1 days ago', $overdue['oldest_days'])) ?>
+                    <?php else: ?>
+                        <?= $escaper->escapeHtml(__('Nothing waiting to ship')) ?>
+                    <?php endif; ?>
+                </span>
+            </span>
+        </a>
+
+        <section class="sp-cell sp-cell--wide" aria-labelledby="sp-aov-title">
+            <div class="sp-cell-head">
+                <h2 id="sp-aov-title" class="sp-cell-title"><?= $escaper->escapeHtml(__('Average order value')) ?></h2>
+                <?= /* @noEscape */ $deltaHtml($deltas['aov']) ?>
+            </div>
+            <p class="sp-figure sp-figure--xl"><?= $escaper->escapeHtml($aov['whole']) ?><span class="sp-figure-dim"><?= $escaper->escapeHtml($aov['decimals']) ?></span></p>
+            <p class="sp-cell-note"><?= $escaper->escapeHtml(__('%1 in %2', $vm->moneyText($d['aov_prev']), $d['prev_month_name'])) ?></p>
+            <div class="sp-cell-chart" data-sp-chart="dumbbell"></div>
+        </section>
+
+        <section class="sp-cell sp-cell--flush sp-tone-blue" aria-labelledby="sp-share-title">
+            <div class="sp-cell-pad">
+                <h2 id="sp-share-title" class="sp-cell-title"><?= $escaper->escapeHtml(__('Sales by payment method')) ?></h2>
+                <p class="sp-cell-note"><?= $escaper->escapeHtml(__('Share of %1 revenue', $d['month_name'])) ?></p>
+            </div>
+            <?php if ($d['share']): ?>
+                <ul class="sp-share">
+                    <?php foreach ($d['share'] as $row): ?>
+                        <li class="sp-share__row">
+                            <span class="sp-figure sp-figure--md sp-share__pct"><?= (int) round($row['share'] * 100) ?><span class="sp-figure-dim">%</span></span>
+                            <span class="sp-share__body">
+                                <span class="sp-share__line"><span class="sp-share__name"><?= $escaper->escapeHtml($row['label']) ?></span><span class="sp-share__amount"><?= $escaper->escapeHtml($vm->moneyText($row['amount'])) ?></span></span>
+                                <span class="sp-share__meter" data-sp-meter="<?= $escaper->escapeHtmlAttr(number_format($row['share'], 4, '.', '')) ?>"></span>
+                            </span>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+            <?php else: ?>
+                <p class="sp-cell-pad sp-cell-note sp-share__empty"><?= $escaper->escapeHtml(__('No orders yet in %1', $d['month_name'])) ?></p>
+            <?php endif; ?>
+        </section>
+
+        <section class="sp-cell sp-tone-lavender" aria-labelledby="sp-month-title">
+            <div class="sp-cell-head">
+                <div>
+                    <h2 id="sp-month-title" class="sp-cell-title"><?= $escaper->escapeHtml(__('Days at %1+ orders', $d['target'])) ?></h2>
+                    <p class="sp-cell-note"><?= $escaper->escapeHtml($d['month_name']) ?></p>
+                </div>
+            </div>
+            <p class="sp-figure sp-figure--xl"><?= (int) $cal['hits'] ?><span class="sp-figure-dim">/<?= (int) $cal['elapsed'] ?></span></p>
+            <div class="sp-cell-chart" data-sp-chart="calendar"></div>
+        </section>
+
+    </div>
+</section>
+<?php ob_start(); ?>
+(function () {
+    var config = <?= /* @noEscape */ json_encode($chartConfig, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP) ?>;
+    var root = document.currentScript ? document.currentScript.previousElementSibling : document.querySelector('.sp-instruments');
+    if (!root || !root.classList.contains('sp-instruments')) { root = document.querySelector('.sp-instruments'); }
+    var attempts = 0;
+    function money(v, digits) {
+        try {
+            return new Intl.NumberFormat(config.locale, { style: 'currency', currency: config.currency, minimumFractionDigits: digits, maximumFractionDigits: digits }).format(v);
+        } catch (e) {
+            return String(v);
+        }
+    }
+    function draw() {
+        var charts = window.SaasparillaCharts;
+        if (!charts) {
+            if (attempts++ < 60) { setTimeout(draw, 50); }
+            return;
+        }
+        var sticksEl = root.querySelector('[data-sp-chart="sticks"]');
+        if (sticksEl) {
+            charts.sticks(sticksEl, { labels: config.sticks.labels, values: config.sticks.values, format: function (v) { return money(v, 0); }, caption: config.captions.revenue, caps: true });
+        }
+        var dbEl = root.querySelector('[data-sp-chart="dumbbell"]');
+        if (dbEl) {
+            charts.dumbbell(dbEl, {
+                labels: config.dumbbell.labels,
+                series: [
+                    { name: config.captions.thisYear, color: 'var(--sp-chart-ink)', values: config.dumbbell.now },
+                    { name: config.captions.lastYear, color: 'var(--sp-chart-ink)', values: config.dumbbell.before }
+                ],
+                format: function (v) { return money(v, 2); },
+                axisFormat: function (v) { return money(v, 0); },
+                caption: config.captions.aov,
+                height: 220
+            });
+        }
+        var calEl = root.querySelector('[data-sp-chart="calendar"]');
+        if (calEl) {
+            charts.dotMatrix(calEl, { days: config.calendar.days, offset: config.calendar.offset, caption: config.captions.calendar });
+        }
+        root.querySelectorAll('[data-sp-meter]').forEach(function (el) {
+            charts.meter(el, { value: Number(el.dataset.spMeter) });
+        });
+    }
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', draw);
+    } else {
+        draw();
+    }
+})();
+<?php $script = ob_get_clean(); ?>
+<?= /* @noEscape */ $secureRenderer->renderTag('script', [], $script, false) ?>

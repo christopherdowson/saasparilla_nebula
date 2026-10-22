@@ -1,0 +1,1224 @@
+/*
+ * Saasparilla skin for Nebula.
+ *
+ * Colours, radii and shadows are tokens in nebula/skin/saasparilla.json.
+ * This file carries the parts a token cannot: Archivo Variable, the wide
+ * uppercase labels, display figures, ink rules instead of cards, keys
+ * instead of outlined buttons, status squares, and numbered navigation.
+ *
+ * It loads before Nebula's app.css, so every rule is prefixed with
+ * `html body` to outrank Nebula's single-class rules at the same cascade
+ * position. Keep that prefix on anything you add.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Font                                                                */
+/* ------------------------------------------------------------------ */
+
+@font-face {
+  font-family: 'Archivo Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url(../fonts/archivo-latin-ext-wdth-normal.woff2) format('woff2-variations');
+  unicode-range: U+0100-02BA,U+02BD-02C5,U+02C7-02CC,U+02CE-02D7,U+02DD-02FF,U+0304,U+0308,U+0329,U+1D00-1DBF,U+1E00-1E9F,U+1EF2-1EFF,U+2020,U+20A0-20AB,U+20AD-20C0,U+2113,U+2C60-2C7F,U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Archivo Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url(../fonts/archivo-latin-wdth-normal.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+@font-face {
+  font-family: 'Archivo Variable';
+  font-style: italic;
+  font-display: swap;
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  src: url(../fonts/archivo-latin-wdth-italic.woff2) format('woff2-variations');
+  unicode-range: U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD;
+}
+
+/* ------------------------------------------------------------------ */
+/* Shared values                                                       */
+/* ------------------------------------------------------------------ */
+
+html body {
+  --sp-ink: var(--nebula-text-primary);
+  --sp-paper: var(--nebula-bg-primary);
+  --sp-rule: var(--nebula-border-strong);
+  --sp-line: var(--nebula-border-default);
+  --sp-accent: var(--nebula-button-primary-bg);
+  --sp-on-accent: #141413;
+  --sp-key: color-mix(in oklab, var(--sp-ink) 8%, var(--sp-paper));
+  --sp-key-hover: color-mix(in oklab, var(--sp-ink) 13%, var(--sp-paper));
+  --sp-key-edge: color-mix(in oklab, var(--sp-ink) 16%, var(--sp-paper));
+  font-stretch: 100%;
+  -webkit-font-smoothing: antialiased;
+}
+
+html body ::selection {
+  background: var(--sp-accent);
+  color: var(--sp-on-accent);
+}
+
+html body :focus-visible {
+  outline: 2px solid var(--sp-accent);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Type: labels and figures                                            */
+/* ------------------------------------------------------------------ */
+
+/* Small uppercase label, set wide */
+html body .nebula-grid__th,
+html body .nebula-grid__popover-label,
+html body .nebula-form-row__label,
+html body .nebula-config-row__label,
+html body .nebula-field > label,
+html body .nebula-dashboard-summary-card__label,
+html body .nebula-dashboard-lifetime-card__label,
+html body .nebula-metric__label,
+html body .nebula-dashboard-panel__title,
+html body .nebula-dashboard-panel__section-header,
+html body .nebula-dashboard-chart-period__label,
+html body .nebula-panel__title,
+html body .nebula-grid__menu-title,
+html body .nebula-menu__section > .nebula-menu__title,
+html body .nebula-menu__title,
+html body .nebula-tab,
+html body .nebula-header-date,
+html body .nebula-footer,
+html body .nebula-shopinfo__term,
+html body .nebula-media__eyebrow,
+html body .nebula-stack-label {
+  font-size: 11px;
+  line-height: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-stretch: 118%;
+}
+
+/* Display figures */
+html body .nebula-dashboard-summary-card__value,
+html body .nebula-dashboard-lifetime-card__value,
+html body .nebula-metric__value,
+html body .nebula-attention-card__count {
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.9;
+  font-stretch: 100%;
+  font-variant-numeric: tabular-nums;
+}
+html body .nebula-dashboard-summary-card__value {
+  font-size: 2.25rem;
+  margin-top: 0.5rem;
+}
+html body .nebula-dashboard-summary-card__decimals,
+html body .nebula-dashboard-lifetime-card__decimals {
+  font-weight: 500;
+  font-size: 0.55em;
+  color: var(--nebula-text-tertiary);
+  margin-left: 0.05em;
+}
+
+/* Page title is a figure */
+html body .nebula-page-actions .page-title,
+html body .nebula-page-title {
+  font-size: 1.75rem;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+}
+
+/* Nebula leans on 600 and 700. Saasparilla's heaviest weight is medium. */
+html body .nebula-content :is(h1, h2, h3, h4),
+html body .nebula-modal__title,
+html body .nebula-grid__card-title,
+html body .nebula-attention-card__label,
+html body .nebula-dashboard-quicklink__title,
+html body .nebula-header-date__day,
+html body .nebula-sidebar-logo span {
+  font-weight: 500;
+}
+html body .nebula-content .font-bold,
+html body .nebula-content .font-semibold,
+html body .nebula-content .font-extrabold {
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------------ */
+/* Shell: sidebar on ink, header and page bar on paper                 */
+/* ------------------------------------------------------------------ */
+
+html body .nebula-header {
+  min-height: 4rem;
+  padding: 0 1.5rem;
+  border-bottom: 1px solid var(--sp-rule);
+}
+html body .nebula-header-date {
+  color: var(--nebula-text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+html body .nebula-header-date__day {
+  color: var(--sp-ink);
+}
+html body .nebula-header .rounded-lg,
+html body .nebula-header-icon-trigger,
+html body .nebula-notification-trigger,
+html body .nebula-user-trigger {
+  border-radius: 0;
+}
+html body .nebula-header .nebula-accent-fg {
+  color: var(--nebula-text-secondary);
+}
+html body .nebula-header-icon-trigger:hover,
+html body .nebula-header-icon-trigger:focus-visible,
+html body .nebula-user-trigger:hover,
+html body .nebula-user-trigger:focus-visible,
+html body .nebula-header-sidebar-toggle:hover {
+  background: var(--nebula-bg-hover);
+  color: var(--sp-ink);
+}
+html body .nebula-header-avatar {
+  background: transparent;
+  border: 1px solid var(--sp-rule);
+  color: var(--sp-ink);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+}
+html body .nebula-notification-counter {
+  background: var(--sp-accent);
+  color: var(--sp-on-accent);
+  font-weight: 500;
+}
+
+html body .nebula-page-actions {
+  border-bottom: 1px solid var(--sp-rule);
+  padding-top: 1.25rem;
+  padding-bottom: 1.25rem;
+}
+
+html body .nebula-footer {
+  border-top: 1px solid var(--sp-line);
+  color: var(--nebula-text-tertiary);
+}
+
+/* Sidebar */
+html body .nebula-sidebar {
+  background: var(--nebula-sidebar-from);
+  border-right: 1px solid var(--nebula-sidebar-border);
+}
+html body .nebula-sidebar-logo {
+  min-height: 4rem;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 1.25rem;
+}
+html body .nebula-sidebar-logo .rounded-lg {
+  border-radius: 0;
+}
+html body .nebula-sidebar-logo span {
+  color: var(--nebula-sidebar-text-active);
+  letter-spacing: -0.02em;
+}
+html body .nebula-edition-badge {
+  border-radius: 0;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-stretch: 118%;
+  font-weight: 500;
+}
+
+html body .nebula-sidebar .nebula-menu-item {
+  border-radius: 0;
+  font-weight: 400;
+  min-height: 2.25rem;
+  transition: background-color 120ms, color 120ms;
+}
+html body .nebula-sidebar .nebula-menu-tree > li > .nebula-menu-item {
+  font-weight: 500;
+}
+html body .nebula-sidebar .nebula-menu-item-active {
+  background: transparent;
+  color: var(--nebula-sidebar-text-active);
+  font-weight: 500;
+}
+html body .nebula-sidebar .nebula-menu-item:hover {
+  background: var(--nebula-sidebar-hover-bg);
+}
+
+/*
+ * Numbered navigation. Each top-level entry swaps its icon for an index,
+ * 01, 02, 03, and the current page swaps its index for the orange dot.
+ */
+html body .nebula-sidebar .nebula-menu-tree {
+  counter-reset: nav;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+html body .nebula-sidebar .nebula-menu-tree > li {
+  counter-increment: nav;
+}
+html body .nebula-sidebar .nebula-menu-tree > li > :is(a, button[aria-controls]) > i.fa-solid:first-child {
+  display: none;
+}
+html body .nebula-sidebar .nebula-menu-tree > li > :is(a, button[aria-controls])::before {
+  content: counter(nav, decimal-leading-zero);
+  position: relative;
+  display: inline-block;
+  width: 1.25rem;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--nebula-sidebar-text-muted);
+  text-align: left;
+}
+html body .nebula-sidebar .nebula-menu-tree > li > a.nebula-menu-item-active::before,
+html body .nebula-sidebar .nebula-menu-tree > li:has(.nebula-menu-item-active) > button::before {
+  color: transparent;
+  background: radial-gradient(circle at 0.25rem 50%, var(--sp-accent) 0 0.25rem, transparent 0.27rem);
+}
+html body .nebula-sidebar .nebula-menu-branch {
+  margin-left: 1.25rem;
+  padding-left: 0.5rem;
+  border-inline-start: 1px solid var(--nebula-sidebar-border);
+}
+html body .nebula-sidebar .nebula-menu-branch > li::before {
+  display: none;
+}
+html body .nebula-sidebar .nebula-menu-branch :is(a, button) > i.fa-solid:first-child {
+  display: none;
+}
+html body .nebula-sidebar-footer-text {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-stretch: 118%;
+}
+
+/* ------------------------------------------------------------------ */
+/* Cells: ink rules instead of cards                                   */
+/* ------------------------------------------------------------------ */
+
+html body .nebula-dashboard-panel,
+html body .nebula-dashboard-card,
+html body .nebula-grid,
+html body .nebula-panel,
+html body .nebula-section-card,
+html body .nebula-metric,
+html body .nebula-attention-card,
+html body .nebula-dashboard-summary-card,
+html body .nebula-grid__card {
+  border: 1px solid var(--sp-rule);
+  border-radius: 0;
+  box-shadow: none;
+  background: var(--sp-paper);
+}
+html body .nebula-dashboard-panel__header {
+  background: transparent;
+  border-bottom: 1px solid var(--sp-rule);
+  padding: 1rem 1.25rem;
+}
+html body .nebula-dashboard-panel__title {
+  color: var(--sp-ink);
+}
+html body .nebula-dashboard-panel__icon {
+  display: none;
+}
+html body .nebula-dashboard-panel__section-header {
+  background: transparent;
+  border-bottom: 1px solid var(--sp-line);
+  color: var(--nebula-text-tertiary);
+}
+html body .nebula-dashboard-panel__view-all {
+  color: var(--nebula-text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in oklab, currentColor 40%, transparent);
+}
+
+/* Summary cards become one ruled strip: shared 1px rules, no gaps */
+html body .nebula-dashboard-stats-row {
+  gap: 0;
+  padding: 1px 0 0 1px;
+}
+html body .nebula-dashboard-stats-row > * {
+  margin: -1px 0 0 -1px;
+  min-height: 6.5rem;
+  padding: 1.25rem 1.5rem;
+  align-items: flex-start;
+}
+html body .nebula-dashboard-summary-card__icon {
+  display: none;
+}
+html body .nebula-dashboard-summary-card__label {
+  color: var(--sp-ink);
+}
+
+/* The one accent panel on the dashboard: flat orange, ink type */
+html body .nebula-dashboard-lifetime-card {
+  background: var(--sp-accent);
+  color: var(--sp-on-accent);
+  border-radius: 0;
+  box-shadow: none;
+}
+html body .nebula-dashboard-lifetime-card__label {
+  color: color-mix(in oklab, var(--sp-on-accent) 70%, transparent);
+}
+html body .nebula-dashboard-lifetime-card__value {
+  font-size: 2.25rem;
+}
+html body .nebula-dashboard-lifetime-card__decimals {
+  color: color-mix(in oklab, var(--sp-on-accent) 60%, transparent);
+}
+
+/* Form panels */
+html body .nebula-panel__summary {
+  border-bottom: 1px solid transparent;
+}
+html body .nebula-panel[open] > .nebula-panel__summary,
+html body .nebula-panel.is-open > .nebula-panel__summary {
+  border-bottom-color: var(--sp-rule);
+}
+html body .nebula-panel__title {
+  color: var(--sp-ink);
+}
+html body .nebula-form-row__label {
+  color: var(--sp-ink);
+}
+html body .nebula-form-row--ruled {
+  border-color: var(--sp-line);
+}
+
+/* ------------------------------------------------------------------ */
+/* Controls: keys, not frames                                          */
+/* ------------------------------------------------------------------ */
+
+html body .nebula-btn,
+html body .nebula-grid__pager-btn,
+html body .nebula-menu-trigger,
+html body .nebula-form-actions-bar .nebula-scope-switcher > button {
+  border-radius: 0;
+  border: 1px solid transparent;
+  background: var(--sp-key);
+  color: var(--sp-ink);
+  font-weight: 500;
+  box-shadow: inset 0 -2px 0 var(--sp-key-edge);
+  transition: background-color 120ms, color 120ms, box-shadow 80ms, translate 80ms;
+}
+html body .nebula-btn:hover,
+html body .nebula-grid__pager-btn:hover,
+html body .nebula-menu-trigger:hover,
+html body .nebula-form-actions-bar .nebula-scope-switcher > button:hover {
+  background: var(--sp-key-hover);
+  color: var(--sp-ink);
+}
+html body .nebula-btn:active,
+html body .nebula-grid__pager-btn:active {
+  box-shadow: none;
+  translate: 0 1px;
+}
+html body .nebula-btn:disabled {
+  opacity: 0.4;
+}
+
+/* The one signal key on a view */
+html body .nebula-btn--primary {
+  background: var(--sp-accent);
+  color: var(--sp-on-accent);
+  box-shadow: inset 0 -2px 0 color-mix(in oklab, #000 22%, var(--sp-accent));
+}
+html body .nebula-btn--primary:hover {
+  background: color-mix(in oklab, #000 8%, var(--sp-accent));
+  color: var(--sp-on-accent);
+}
+
+/* Tertiary: text until it is pointed at */
+html body .nebula-btn--ghost,
+html body .nebula-grid__pager-btn--disabled {
+  background: transparent;
+  box-shadow: none;
+  border-color: transparent;
+  color: var(--nebula-text-secondary);
+}
+html body .nebula-btn--ghost:hover {
+  background: var(--sp-key);
+  color: var(--sp-ink);
+}
+html body .nebula-btn--soft {
+  background: var(--sp-key);
+  color: var(--sp-ink);
+}
+html body .nebula-btn--soft:hover {
+  background: var(--sp-key-hover);
+}
+html body .nebula-btn--danger {
+  background: color-mix(in oklab, var(--nebula-color-error) 12%, var(--sp-paper));
+  border-color: transparent;
+  color: var(--sp-ink);
+  box-shadow: inset 0 -2px 0 color-mix(in oklab, var(--nebula-color-error) 30%, var(--sp-paper));
+}
+html body .nebula-btn--danger-solid {
+  background: var(--nebula-color-error);
+  color: #fff;
+  box-shadow: inset 0 -2px 0 color-mix(in oklab, #000 22%, var(--nebula-color-error));
+}
+html body .nebula-btn--dashed {
+  border: 1px dashed var(--sp-rule);
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Inputs: raised surface, quiet line, ink when focused, no ring */
+html body .nebula-control,
+html body .nebula-grid-input {
+  border-radius: 0;
+  background: var(--nebula-input-bg);
+  border: 1px solid var(--sp-line);
+}
+html body .nebula-control:focus,
+html body .nebula-grid-input:focus {
+  border-color: var(--sp-rule);
+  box-shadow: none;
+  outline: none;
+}
+html body .nebula-checkbox {
+  accent-color: var(--sp-ink);
+  border-radius: 0;
+}
+
+/* Segmented control: recessed track, chosen option raised in paper */
+html body .nebula-segment {
+  border-radius: 0;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
+  color: var(--nebula-text-secondary);
+  font-weight: 500;
+}
+html body .nebula-segment.is-active,
+html body .nebula-segment[aria-pressed="true"],
+html body .nebula-segment[aria-checked="true"] {
+  background: var(--sp-paper);
+  color: var(--sp-ink);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--sp-ink) 22%, var(--sp-paper));
+}
+
+/* ------------------------------------------------------------------ */
+/* Tables                                                              */
+/* ------------------------------------------------------------------ */
+
+html body .nebula-grid__head {
+  background: transparent;
+}
+html body .nebula-grid__th {
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--sp-rule);
+  color: var(--nebula-text-tertiary);
+}
+html body .nebula-grid__sort:hover,
+html body .nebula-grid__sort--active {
+  color: var(--sp-ink);
+}
+html body .nebula-grid__filters {
+  background: transparent;
+  border-top: 0;
+  border-bottom: 1px solid var(--sp-rule);
+}
+html body .nebula-grid__cell {
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+html body .nebula-grid__row,
+html body .nebula-dashboard-table tbody > tr {
+  border-top: 1px solid var(--sp-line);
+  background: var(--sp-paper);
+}
+html body .nebula-grid__row:nth-child(odd),
+html body .nebula-dashboard-table tbody > tr:nth-child(odd) {
+  background: var(--sp-paper);
+}
+html body .nebula-grid__row:nth-child(even),
+html body .nebula-dashboard-table tbody > tr:nth-child(even) {
+  background: color-mix(in oklab, var(--sp-ink) 3.5%, transparent);
+}
+html body .nebula-grid__row:hover,
+html body .nebula-dashboard-table tbody > tr:hover {
+  background: var(--nebula-bg-hover);
+}
+html body .nebula-grid__cell .font-medium,
+html body .nebula-grid__cell .price {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+html body .nebula-grid__pager-current {
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Status is a square plus a word, never colour alone */
+html body .nebula-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--sp-ink);
+  font-weight: 500;
+  font-size: var(--nebula-font-size-sm);
+  --sp-status: var(--nebula-text-tertiary);
+}
+html body .nebula-chip::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  flex-shrink: 0;
+  background: var(--sp-status);
+}
+html body .nebula-chip--ok { --sp-status: var(--nebula-color-success); }
+html body .nebula-chip--warning { --sp-status: var(--nebula-color-warning); }
+html body .nebula-chip--error { --sp-status: var(--nebula-color-error); }
+html body .nebula-chip--info { --sp-status: var(--nebula-color-info); }
+html body .nebula-chip--accent,
+html body .nebula-chip--accent-solid { --sp-status: var(--sp-accent); }
+html body .nebula-chip--muted { --sp-status: var(--nebula-text-tertiary); color: var(--nebula-text-secondary); }
+
+html body .nebula-boolean {
+  border-radius: 0;
+  font-weight: 500;
+  min-width: 0;
+  padding: 0.125rem 0.5rem;
+}
+
+/* ------------------------------------------------------------------ */
+/* Tabs, menus, dialogs, alerts                                        */
+/* ------------------------------------------------------------------ */
+
+html body .nebula-tabs {
+  border-bottom: 1px solid var(--sp-rule);
+  gap: 0.25rem;
+}
+html body .nebula-tab {
+  height: 2.75rem;
+  padding: 0 1rem;
+  border-bottom: 2px solid transparent;
+  color: var(--nebula-text-tertiary);
+}
+html body .nebula-tab:hover {
+  color: var(--sp-ink);
+}
+html body .nebula-tab.is-active {
+  color: var(--sp-ink);
+  border-bottom-color: var(--sp-ink);
+}
+
+html body .nebula-menu,
+html body .nebula-grid__menu,
+html body .nebula-grid__popover-panel,
+html body .nebula-picker__dropdown,
+html body .nebula-toast__card,
+html body .nebula-modal > *,
+html body .nebula-modal--frame,
+html body .nebula-modal--sheet,
+html body .nebula-drawer__panel {
+  border-radius: 0;
+  box-shadow: none;
+  border: 1px solid var(--sp-rule);
+  background: var(--nebula-bg-secondary);
+}
+html body .nebula-modal {
+  border: 0;
+  background: transparent;
+}
+html body .nebula-modal__footer {
+  border-top: 1px solid var(--sp-line);
+}
+html body .nebula-menu__section {
+  border-bottom: 1px solid var(--sp-line);
+  color: var(--nebula-text-tertiary);
+}
+html body .nebula-menu__item,
+html body .nebula-grid__menu-item,
+html body .nebula-grid__picker-option {
+  border-radius: 0;
+}
+html body .nebula-menu__item.is-selected {
+  color: var(--sp-ink);
+  font-weight: 500;
+}
+html body .nebula-scrim {
+  background: color-mix(in oklab, var(--sp-ink) 30%, transparent);
+}
+
+html body .nebula-alert {
+  border-radius: 0;
+  border: 1px solid var(--sp-line);
+  border-left: 4px solid var(--sp-status, var(--nebula-text-tertiary));
+  background: var(--nebula-bg-secondary);
+  color: var(--sp-ink);
+}
+html body .nebula-alert--success { --sp-status: var(--nebula-color-success); }
+html body .nebula-alert--warning { --sp-status: var(--nebula-color-warning); }
+html body .nebula-alert--error { --sp-status: var(--nebula-color-error); }
+
+/* ------------------------------------------------------------------ */
+/* Utility bridge: Nebula templates use Tailwind classes directly      */
+/* ------------------------------------------------------------------ */
+
+/* Square corners (circles stay) and no shadows */
+html body .nebula-main :is(.rounded, .rounded-sm, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-b-lg, .rounded-t-lg),
+html body .nebula-sidebar :is(.rounded, .rounded-sm, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl),
+html body dialog :is(.rounded, .rounded-sm, .rounded-md, .rounded-lg, .rounded-xl, .rounded-2xl, .rounded-3xl, .rounded-b-lg, .rounded-t-lg) {
+  border-radius: 0;
+}
+html body :is(.shadow, .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl, .shadow-2xl) {
+  box-shadow: none;
+}
+html body :is(.ring-1, .ring-2) {
+  --tw-ring-color: var(--sp-rule);
+}
+
+/* Surfaces and greys follow the skin instead of fixed Tailwind greys */
+html body .nebula-main .bg-white,
+html body dialog .bg-white,
+html body .nebula-main .bg-gray-50,
+html body dialog .bg-gray-50 {
+  background-color: var(--nebula-bg-secondary);
+}
+html body :is(.text-gray-900, .text-gray-800) { color: var(--sp-ink); }
+html body .text-gray-700 { color: var(--nebula-text-secondary); }
+html body :is(.text-gray-600, .text-gray-500) { color: var(--nebula-text-tertiary); }
+html body .text-gray-400 { color: var(--nebula-text-muted); }
+html body :is(.border-gray-100, .border-gray-200, .divide-gray-100 > :not([hidden]) ~ :not([hidden]), .divide-gray-200 > :not([hidden]) ~ :not([hidden])) {
+  border-color: var(--sp-line);
+}
+
+/* ------------------------------------------------------------------ */
+/* Round 2: details from the first screenshots                         */
+/* ------------------------------------------------------------------ */
+
+/* Zebra paints once: the row carries the tint, cells stay clear */
+html body .nebula-grid__row > .nebula-grid__cell,
+html body .nebula-dashboard-table tbody > tr > td {
+  background: transparent;
+}
+
+/* Nebula paints the page bar slate in dark mode with !important; keep it on paper */
+html.dark body .nebula-page-actions {
+  background-color: var(--nebula-header-bg) !important;
+  border-color: var(--sp-rule) !important;
+  color: var(--sp-ink) !important;
+}
+
+/* Orange is for state only */
+html body .nebula-scope-current {
+  color: var(--sp-ink);
+}
+html body .nebula-sidebar-footer a,
+html body .nebula-sidebar-footer-text {
+  color: var(--nebula-sidebar-text);
+  border-radius: 0;
+}
+html body .nebula-sidebar-footer a:hover {
+  color: var(--nebula-sidebar-text-active);
+  background: var(--nebula-sidebar-hover-bg);
+}
+html body .nebula-sidebar-footer a > i.fa-solid {
+  display: none;
+}
+html body .nebula-sidebar-footer-text {
+  color: var(--nebula-sidebar-text-muted);
+}
+
+/* Theme switcher widget: a ruled key on the ink, not a slate pill */
+html body .siteation-nebula-sidebar-switcher__toggle {
+  border-radius: 0;
+  border: 1px solid var(--nebula-sidebar-border);
+  background: transparent;
+  color: var(--nebula-sidebar-text);
+  padding: 0.75rem;
+}
+html body .siteation-nebula-sidebar-switcher__toggle:hover {
+  background: var(--nebula-sidebar-hover-bg);
+  border-color: var(--nebula-sidebar-border);
+  color: var(--nebula-sidebar-text-active);
+}
+html body .siteation-nebula-sidebar-switcher__icon {
+  border-radius: 0;
+  background: transparent;
+  border: 1px solid var(--nebula-sidebar-border);
+  color: var(--nebula-sidebar-text-muted);
+}
+html body .siteation-nebula-sidebar-switcher__eyebrow {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-stretch: 118%;
+  color: var(--nebula-sidebar-text-muted);
+}
+html body .siteation-nebula-sidebar-switcher__meta > :not(.siteation-nebula-sidebar-switcher__eyebrow) {
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--nebula-sidebar-text-active);
+}
+
+/* Header keeps its ink rule whatever Nebula applies after it */
+html body .nebula-header {
+  border-bottom-color: var(--sp-rule);
+}
+html body .nebula-sidebar-footer {
+  border-top: 1px solid var(--nebula-sidebar-border);
+}
+
+/* ------------------------------------------------------------------ */
+/* Round 3: dark-mode rules Nebula scopes to .dark, brand mark, notice  */
+/* ------------------------------------------------------------------ */
+
+html.dark body .nebula-tab.is-active {
+  color: var(--sp-ink);
+  border-bottom-color: var(--sp-ink);
+}
+html.dark body .nebula-scope-current {
+  color: var(--sp-ink);
+}
+html.dark body .nebula-menu__item.is-selected:hover {
+  color: var(--sp-ink);
+}
+
+/* Version line and any other orange text in the sidebar */
+html body .nebula-sidebar :is(.text-nebula-400, .text-nebula-500, .text-nebula-300) {
+  color: var(--nebula-sidebar-text-muted);
+}
+
+/* Brand block: the Saasparilla mark is an orange dot beside the name */
+html body .nebula-sidebar-logo img {
+  display: none;
+}
+html body .nebula-sidebar-logo a > div:first-child {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  background: var(--sp-accent);
+  overflow: visible;
+}
+html body .nebula-sidebar-logo a {
+  gap: 0.75rem;
+}
+
+/* Developer notice: square, ink on accent */
+html body .nebula-dev-notice {
+  border-radius: 0;
+  background: var(--sp-accent);
+  color: var(--sp-on-accent);
+  border: 0;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------------ */
+/* Round 4: sign-in page                                               */
+/* ------------------------------------------------------------------ */
+
+/* Branding panel: flat ink, orange mark, no gradient or grid texture */
+html body .nebula-split-branding > div {
+  background-image: none;
+  background-color: var(--nebula-sidebar-from);
+}
+html body .nebula-split-branding .opacity-10,
+html body .nebula-split-branding .bg-gradient-to-r,
+html body .nebula-split-branding img {
+  display: none;
+}
+html body .nebula-split-branding .rounded-2xl {
+  width: 0.75rem;
+  height: 0.75rem;
+  margin-bottom: 1.5rem;
+  border-radius: 9999px;
+  background: var(--sp-accent);
+  backdrop-filter: none;
+}
+html body .nebula-split-branding h1 {
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  color: var(--nebula-sidebar-text-active);
+}
+html body .nebula-split-branding :is(.text-nebula-300, .text-nebula-400, .text-nebula-200) {
+  color: var(--nebula-sidebar-text);
+  font-weight: 400;
+}
+html body .nebula-split-branding p:last-child {
+  color: var(--nebula-sidebar-text-muted);
+}
+
+/* Form side */
+html body .nebula-login__title {
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+html body .nebula-login__sub {
+  color: var(--nebula-text-tertiary);
+  margin-bottom: 1.5rem;
+}
+html body .nebula-split-main a:is(.text-nebula-600, .text-nebula-500, .text-nebula-700) {
+  color: var(--nebula-text-secondary);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in oklab, currentColor 40%, transparent);
+}
+html body .nebula-split-main a:is(.text-nebula-600, .text-nebula-500, .text-nebula-700):hover {
+  color: var(--sp-ink);
+}
+html body .nebula-passkey-login__divider-label {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-stretch: 118%;
+  color: var(--nebula-text-tertiary);
+}
+
+/* ------------------------------------------------------------------ */
+/* Round 5: gutter alignment, ink flyouts, hierarchy inside panels     */
+/* ------------------------------------------------------------------ */
+
+/* The title bar sits inside the content gutter; no second gutter */
+html body .nebula-page-actions,
+html body .nebula-form-actions-bar {
+  padding-inline: 0;
+}
+html body .nebula-form-header {
+  margin-inline: 0;
+}
+
+/*
+ * Flyouts on ink. Menus, popovers, pickers, the palette and the
+ * notification panel redefine the tokens inside themselves, so
+ * everything within them follows, in light mode as well as dark.
+ */
+html body :is(.nebula-menu, .nebula-grid__menu, .nebula-grid__popover-panel, .nebula-picker__dropdown, .nebula-palette, .nebula-header .absolute.z-50) {
+  color-scheme: dark;
+  --nebula-page-bg: var(--nebula-sidebar-from);
+  --nebula-bg-primary: var(--nebula-sidebar-from);
+  --nebula-bg-secondary: var(--nebula-sidebar-from);
+  --nebula-bg-tertiary: #262624;
+  --nebula-bg-hover: #262624;
+  --nebula-input-bg: #1b1b1a;
+  --nebula-input-border: #302f2c;
+  --nebula-button-bg: #262624;
+  --nebula-text-primary: var(--nebula-sidebar-text-active);
+  --nebula-text-secondary: var(--nebula-sidebar-text);
+  --nebula-text-tertiary: var(--nebula-sidebar-text-muted);
+  --nebula-text-muted: var(--nebula-sidebar-text-muted);
+  --nebula-text-inverted: #141413;
+  --nebula-border-light: var(--nebula-sidebar-border);
+  --nebula-border-default: var(--nebula-sidebar-border);
+  --nebula-border-strong: #3a3936;
+  --nebula-link: var(--nebula-sidebar-text-active);
+  --nebula-color-success: #499f6b;
+  --nebula-color-warning: #ed8008;
+  --nebula-color-error: #e76556;
+  --nebula-color-info: #6893b6;
+  --nebula-ink-success: #499f6b;
+  --nebula-ink-warning: #ed8008;
+  --nebula-ink-error: #e76556;
+  --nebula-ink-info: #6893b6;
+  --sp-ink: var(--nebula-sidebar-text-active);
+  --sp-paper: var(--nebula-sidebar-from);
+  --sp-rule: #3a3936;
+  --sp-line: var(--nebula-sidebar-border);
+  --sp-key: #262624;
+  --sp-key-hover: #302f2c;
+  --sp-key-edge: #3a3936;
+  background: var(--nebula-sidebar-from);
+  color: var(--nebula-sidebar-text-active);
+  border: 1px solid var(--sp-rule);
+}
+/* Pointed-at items invert, as Saasparilla's menu items do */
+html body :is(.nebula-menu, .nebula-grid__menu, .nebula-picker__dropdown, .nebula-palette, .nebula-header .absolute.z-50) :is(.nebula-menu__item, .nebula-menu__link, .nebula-grid__menu-item, .nebula-grid__menu-link, .nebula-grid__picker-option, .nebula-palette__item):hover {
+  background: var(--nebula-sidebar-text-active);
+  color: #141413;
+}
+html body .nebula-menu__section {
+  border-bottom-color: var(--sp-line);
+}
+html body .nebula-menu__name {
+  font-weight: 500;
+  color: var(--nebula-text-primary);
+}
+html body .nebula-menu__meta {
+  color: var(--nebula-text-tertiary);
+  font-size: var(--nebula-font-size-xs);
+}
+
+/* Hierarchy inside a panel: title (label, ink), sub-section (sentence, raised band), table head (label, muted) */
+html body .nebula-dashboard-panel__section-header {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  font-stretch: 100%;
+  line-height: 1.25rem;
+  color: var(--sp-ink);
+  background: var(--nebula-bg-secondary);
+  border-top: 1px solid var(--sp-line);
+  border-bottom: 1px solid var(--sp-line);
+  padding: 0.625rem 1.25rem;
+}
+html body .nebula-dashboard-panel__section-header:first-child {
+  border-top: 0;
+}
+html body :is(.nebula-dashboard-table, .nebula-doc-table) th {
+  font-size: 11px;
+  line-height: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-stretch: 118%;
+  color: var(--nebula-text-tertiary);
+  background: transparent;
+  border-bottom: 1px solid var(--sp-line);
+  padding: 0.625rem 1.25rem;
+}
+html body :is(.nebula-dashboard-table, .nebula-doc-table) td {
+  padding: 0.75rem 1.25rem;
+}
+html body .nebula-dashboard-panel__title {
+  font-size: 11px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Round 6: brand mark stays round; no orange for links or counts      */
+/* ------------------------------------------------------------------ */
+
+html body .nebula-sidebar .nebula-sidebar-logo a > div:first-child,
+html body .nebula-split-branding .rounded-2xl {
+  border-radius: 9999px;
+}
+html body .nebula-header .absolute.z-50 a,
+html body .nebula-header .absolute.z-50 button:not(.nebula-btn) {
+  color: var(--nebula-text-primary);
+}
+html body .nebula-header .absolute.z-50 a:hover {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+html body .nebula-notification-pill {
+  background: transparent;
+  border: 1px solid var(--sp-rule);
+  color: var(--nebula-text-secondary);
+  border-radius: 0;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-stretch: 118%;
+  font-weight: 500;
+}
+
+/* Nebula pins every rounded-* utility to its radius token with !important,
+   so the two brand marks need the same weight to stay round. */
+html body .nebula-sidebar .nebula-sidebar-logo a > div:first-child,
+html body .nebula-split-branding .rounded-2xl {
+  border-radius: 9999px !important;
+}
+
+/* ------------------------------------------------------------------ */
+/* Round 7: matched against the Saasparilla demo dashboard             */
+/* ------------------------------------------------------------------ */
+
+/* Wordmark: wide uppercase label beside the orange mark, no edition badge */
+html body .nebula-sidebar-logo a > span.nebula-menu-text {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-stretch: 118%;
+  color: var(--nebula-sidebar-text-active);
+}
+html body .nebula-sidebar-logo .nebula-edition-badge {
+  display: none;
+}
+
+/* Nav items are regular weight; only the current one is medium */
+html body .nebula-sidebar .nebula-menu-tree > li > .nebula-menu-item {
+  font-weight: 400;
+}
+html body .nebula-sidebar .nebula-menu-item-active,
+html body .nebula-sidebar .nebula-menu-tree > li:has(.nebula-menu-item-active) > button {
+  font-weight: 500;
+}
+
+/* Page title is the large light figure */
+html body .nebula-page-actions .page-title,
+html body .nebula-page-title {
+  font-size: 2.5rem;
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+}
+html body .nebula-page-actions {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+/* Figures are the hero: taller cells, bigger numbers */
+html body .nebula-dashboard-stats-row > * {
+  min-height: 9rem;
+  padding: 1.5rem;
+  justify-content: space-between;
+}
+html body .nebula-dashboard-summary-card__value {
+  font-size: 2.75rem;
+  margin-top: 1rem;
+}
+html body .nebula-dashboard-lifetime-card__value {
+  font-size: 3rem;
+}
+html body .nebula-dashboard-lifetime-card {
+  padding: 1.5rem;
+  min-height: 9rem;
+  justify-content: space-between;
+}
+
+/* ------------------------------------------------------------------ */
+/* Saasparilla charts: tokens and classes the SVG renderer expects     */
+/* ------------------------------------------------------------------ */
+
+html body {
+  --sp-fg: var(--nebula-text-primary);
+  --sp-fg-muted: var(--nebula-text-secondary);
+  --sp-fg-subtle: var(--nebula-text-tertiary);
+  --sp-bg: var(--nebula-bg-primary);
+  --sp-chart-ink: var(--nebula-text-primary);
+  --sp-chart-muted: var(--nebula-text-muted);
+  --sp-chart-grid: var(--nebula-border-light);
+  --sp-chart-empty: var(--nebula-border-default);
+}
+html body .chart { position: relative; }
+html body .chart svg { display: block; width: 100%; overflow: visible; }
+html body .chart-grid { stroke: var(--sp-chart-grid); stroke-width: 1; shape-rendering: crispEdges; }
+html body .chart-baseline { stroke: var(--sp-rule); stroke-width: 1; shape-rendering: crispEdges; }
+html body .chart-tick {
+  fill: var(--sp-fg-subtle);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+html body .chart-crosshair { stroke: var(--sp-fg); stroke-width: 1; shape-rendering: crispEdges; }
+html body .chart-dot { stroke: var(--sp-bg); stroke-width: 2; }
+html body .chart-legend {
+  display: flex; flex-wrap: wrap; align-items: center; column-gap: 1.25rem; row-gap: 0.25rem;
+  color: var(--sp-fg-muted);
+  font-size: 11px; line-height: 1rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-stretch: 118%;
+}
+html body .chart-key { display: inline-block; height: 2px; width: 1rem; }
+html body .chart-key-dot { display: inline-block; width: 0.625rem; height: 0.625rem; border-radius: 9999px; }
+html body .chart-tooltip {
+  pointer-events: none; position: absolute; top: 0; left: 0; z-index: 10; min-width: 10rem;
+  border: 1px solid var(--sp-rule); background: var(--sp-bg); padding: 0.625rem 0.75rem; font-size: 12px;
+  opacity: 0; transition: opacity 100ms;
+}
+html body .chart-tooltip[data-show="true"] { opacity: 1; }
+html body .chart-tooltip .label {
+  font-size: 11px; line-height: 1rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-stretch: 118%;
+}
+html body .chart-tooltip .text-fg { color: var(--sp-fg); }
+html body .chart-tooltip .text-fg-muted { color: var(--sp-fg-muted); }
+html body .sp-chart { min-height: 280px; }
+html body .sp-chart .sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Round 8: section pass (order view, panel actions, config nav)       */
+/* ------------------------------------------------------------------ */
+
+/* Form action bars: some bleed with negative margins, some do not. Pin them
+   to the content edge everywhere so titles line up with the panels. */
+html body .nebula-form-actions-bar {
+  margin-inline: 0;
+  padding-inline: 0;
+}
+
+/* Panel header actions (Edit, Close) are links, not state */
+html body .nebula-panel__action,
+html body .nebula-panel__label-open,
+html body .nebula-panel__label-closed {
+  color: var(--nebula-text-secondary);
+}
+html body .nebula-panel__action {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-color: color-mix(in oklab, currentColor 40%, transparent);
+}
+html body .nebula-panel__action:hover {
+  color: var(--sp-ink);
+}
+
+/* Configuration side nav: the open section and current page in ink, not orange */
+html body.nebula-config-nav-sidebar .nebula-main :is(.bg-nebula-700, .bg-nebula-600, .bg-nebula-800) {
+  background-color: var(--sp-ink);
+  color: var(--sp-paper);
+}
+html body.nebula-config-nav-sidebar .nebula-main :is(.bg-nebula-700, .bg-nebula-600, .bg-nebula-800) :is(svg, i) {
+  color: var(--sp-paper);
+}
+html body.nebula-config-nav-sidebar .nebula-main :is(.bg-nebula-50, .bg-nebula-100, .hover\:bg-nebula-50:hover, .hover\:bg-nebula-100:hover) {
+  background-color: var(--nebula-bg-hover);
+}
+html body.nebula-config-nav-sidebar .nebula-main :is(.text-nebula-600, .text-nebula-700, .text-nebula-800) {
+  color: var(--sp-ink);
+}
+
+/* ------------------------------------------------------------------ */
+/* Round 9: label and control alignment in form rows                   */
+/* ------------------------------------------------------------------ */
+
+/* Nebula pads the label 8px so a 20px line centres on a 38px input. Keep the
+   label's line at 20px so the uppercase label lands on the same centre. */
+html body .nebula-form-row__label,
+html body .nebula-config-row__label {
+  line-height: 1.25rem;
+}
+/* A switch is 24px tall, so the label needs 2px, not 8px, to share its centre */
+html body .nebula-form-row:has(> .nebula-form-row__body > .nebula-switch, > .nebula-form-row__body > :first-child > .nebula-switch, > .nebula-form-row__body > label > .nebula-switch) > .nebula-form-row__label,
+html body .nebula-form-row:has(.nebula-switch):not(:has(.nebula-control, textarea, select)) > .nebula-form-row__label {
+  padding-top: 2px;
+}
+/* The switch's own value word is ink, not orange: the switch already shows the state */
+html body .nebula-switch-label {
+  color: var(--nebula-text-secondary);
+  font-weight: 400;
+}
+
+/* Category tree: the current node reads in ink on its tint, not orange on orange (2.2:1) */
+html body .nebula-tree__label--current {
+  color: var(--sp-ink);
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------------ */
+/* Round 10: contrast findings from the axe audit                      */
+/* ------------------------------------------------------------------ */
+
+/* Icon buttons (edit, remove) are actions, not state: secondary ink, not orange */
+html body .nebula-icon-btn {
+  color: var(--nebula-text-secondary);
+}
+html body .nebula-icon-btn:hover {
+  color: var(--sp-ink);
+}
+/* The editor's source/visual toggle sits on the accent, so its label is ink (white was 2.3:1) */
+html body .nebula-quill-toggle {
+  color: var(--sp-on-accent);
+}

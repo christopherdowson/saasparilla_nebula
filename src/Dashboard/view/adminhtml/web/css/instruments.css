@@ -1,0 +1,219 @@
+/*
+ * Dashboard instruments: Saasparilla's cells grid, figures, deltas, tones and
+ * the share list. Colour tokens (--sp-*) come from the MFRG_SaasparillaSkin
+ * stylesheet; tones redefine them inside a cell so everything within follows.
+ * Prefixed with `html body` like the skin, since this loads before app.css.
+ */
+
+/* Nebula's own welcome row and stat strip are replaced by these instruments */
+html body .nebula-page-container:has(.sp-instruments) :is(.nebula-dashboard-welcome, .nebula-dashboard-stats-row) {
+  display: none;
+}
+
+html body .sp-instruments {
+  margin-bottom: 1.5rem;
+}
+
+/* Cells: each draws its right and bottom rule, the grid draws top and left */
+html body .sp-cells {
+  --sp-cell-rule: var(--sp-rule);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--sp-cell-rule);
+  border-left: 1px solid var(--sp-cell-rule);
+}
+@media (min-width: 1280px) {
+  html body .sp-cells { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+html body .sp-cells > * {
+  border-right: 1px solid var(--sp-cell-rule);
+  border-bottom: 1px solid var(--sp-cell-rule);
+}
+html body .sp-cell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  background: var(--sp-bg);
+  color: var(--sp-fg);
+  padding: 1.5rem;
+  text-decoration: none;
+}
+html body .sp-cell--flush { padding: 0; }
+html body .sp-cell-pad { padding: 1.5rem 1.5rem 1rem; }
+html body .sp-cell--hero { grid-column: span 2; }
+@media (min-width: 1280px) {
+  html body .sp-cell--hero { grid-row: span 2; }
+}
+html body .sp-cell--wide { grid-column: span 2; }
+html body .sp-cell--stat {
+  min-height: 11rem;
+  justify-content: space-between;
+}
+html body .sp-cell--link { cursor: pointer; }
+html body .sp-cell--link:hover .sp-cell-arrow {
+  background: var(--sp-fg);
+  color: var(--sp-bg);
+}
+
+html body .sp-cell-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+html body .sp-cell-title {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-stretch: 118%;
+  color: var(--sp-fg);
+}
+html body .sp-cell-note {
+  margin: 0.75rem 0 0;
+  font-size: 13px;
+  color: var(--sp-fg-subtle);
+}
+html body .sp-cell-pad .sp-cell-note { margin-top: 0.25rem; }
+html body .sp-cell-meta {
+  margin: 0.5rem 0 0;
+  font-size: 12px;
+  color: var(--sp-fg-subtle);
+}
+html body .sp-block { display: block; }
+
+/* Figures */
+html body .sp-figure {
+  margin: 0;
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 0.9;
+  font-stretch: 100%;
+  font-variant-numeric: tabular-nums;
+  color: var(--sp-fg);
+}
+html body .sp-figure--hero { margin-top: 2rem; font-size: 3.75rem; }
+html body .sp-figure--xl { margin-top: 1.5rem; font-size: 3rem; }
+html body .sp-figure--lg { font-size: 2.75rem; }
+html body .sp-figure--md { font-size: 1.875rem; }
+@media (min-width: 640px) {
+  html body .sp-figure--hero { font-size: 4.5rem; }
+}
+html body .sp-figure-dim { color: var(--sp-dim, var(--sp-fg-subtle)); }
+
+/* Deltas: arrow plus signed figure, good or bad */
+html body .sp-delta {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+html body .sp-delta__icon { width: 0.875rem; height: 0.875rem; align-self: center; flex-shrink: 0; }
+html body .sp-delta--good { color: var(--sp-good, #0d703f); }
+html body .sp-delta--bad { color: var(--sp-bad, #ae2f25); }
+html.dark body .sp-delta--good { color: var(--sp-good, #499f6b); }
+html.dark body .sp-delta--bad { color: var(--sp-bad, #e76556); }
+
+html body .sp-cell-arrow {
+  display: inline-flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 1px solid color-mix(in oklab, var(--sp-fg) 40%, transparent);
+  transition: background-color 120ms, color 120ms;
+}
+html body .sp-cell-arrow svg { width: 1.125rem; height: 1.125rem; }
+
+html body .sp-cell-chart { margin-top: 2rem; }
+html body .sp-cell-chart--bottom { margin-top: auto; padding-top: 2.5rem; }
+
+/* Share list */
+html body .sp-share { list-style: none; margin: 0; padding: 0; }
+html body .sp-share__row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  border-top: 1px solid var(--sp-line);
+  padding: 0.75rem 1.5rem;
+}
+html body .sp-share__pct { width: 5rem; flex-shrink: 0; }
+html body .sp-share__body { min-width: 0; flex: 1; padding-bottom: 0.125rem; }
+html body .sp-share__line { display: flex; justify-content: space-between; gap: 0.5rem; font-size: 12px; }
+html body .sp-share__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html body .sp-share__amount { color: var(--sp-fg-subtle); font-variant-numeric: tabular-nums; }
+html body .sp-share__meter { display: block; margin-top: 0.5rem; }
+html body .sp-share__empty { padding-top: 0; padding-bottom: 1.5rem; }
+
+/* Tones: flat panels for zoning, light with ink type, deeper in dark mode */
+html body .sp-tone-blue {
+  color-scheme: light;
+  --sp-bg: #aab7bf; --sp-raised: #aab7bf; --sp-hover: #a1adb5; --sp-rule: #141413; --sp-line: #899399;
+  --sp-fg: #141413; --sp-fg-muted: #414547; --sp-fg-subtle: #414547; --sp-dim: #595f62;
+  --sp-good: #141413; --sp-bad: #141413;
+  --sp-chart-ink: #141413; --sp-chart-muted: #595f62; --sp-chart-grid: #899399; --sp-chart-empty: #929da3;
+}
+html.dark body .sp-tone-blue {
+  color-scheme: dark;
+  --sp-bg: #3b4b59; --sp-raised: #3b4b59; --sp-hover: #435361; --sp-rule: #e2f1fe; --sp-line: #596672;
+  --sp-fg: #e2f1fe; --sp-fg-muted: #adbcc9; --sp-fg-subtle: #adbcc9; --sp-dim: #8b9ba8;
+  --sp-good: #e2f1fe; --sp-bad: #e2f1fe;
+  --sp-chart-ink: #e2f1fe; --sp-chart-muted: #8b9ba8; --sp-chart-grid: #596672; --sp-chart-empty: #58636e;
+}
+html body .sp-tone-lavender {
+  color-scheme: light;
+  --sp-bg: #aba3cc; --sp-raised: #aba3cc; --sp-hover: #a29ac1; --sp-rule: #141413; --sp-line: #8a84a3;
+  --sp-fg: #141413; --sp-fg-muted: #3d3b45; --sp-fg-subtle: #3d3b45; --sp-dim: #565364;
+  --sp-good: #141413; --sp-bad: #141413;
+  --sp-chart-ink: #141413; --sp-chart-muted: #565364; --sp-chart-grid: #8a84a3; --sp-chart-empty: #938cae;
+}
+html.dark body .sp-tone-lavender {
+  color-scheme: dark;
+  --sp-bg: #3a2f5b; --sp-raised: #3a2f5b; --sp-hover: #423764; --sp-rule: #efecff; --sp-line: #544c71;
+  --sp-fg: #efecff; --sp-fg-muted: #a39dba; --sp-fg-subtle: #a39dba; --sp-dim: #867ea0;
+  --sp-good: #efecff; --sp-bad: #efecff;
+  --sp-chart-ink: #efecff; --sp-chart-muted: #867ea0; --sp-chart-grid: #544c71; --sp-chart-empty: #514a6a;
+}
+html body .sp-tone-accent,
+html.dark body .sp-tone-accent {
+  color-scheme: light;
+  --sp-bg: #ed8008; --sp-raised: #ed8008; --sp-hover: #e07a09; --sp-rule: #141413; --sp-line: #bd680a;
+  --sp-fg: #141413; --sp-fg-muted: #462d10; --sp-fg-subtle: #462d10; --sp-dim: #6f410e;
+  --sp-good: #141413; --sp-bad: #141413;
+  --sp-chart-ink: #141413; --sp-chart-muted: #6f410e; --sp-chart-grid: #bd680a; --sp-chart-empty: #ca6f0a;
+  --sp-accent: #141413;
+}
+/* Toned cells keep the page's rule colour on their outer edges */
+html body .sp-cells > .sp-tone-blue,
+html body .sp-cells > .sp-tone-lavender,
+html body .sp-cells > .sp-tone-accent {
+  border-color: var(--sp-cell-rule);
+}
+
+/* The chart renderer's own helper classes, for the tooltip and calendar */
+html body .sp-instruments .grid { display: grid; }
+html body .sp-instruments .grid-cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+html body .sp-instruments .gap-x-2 { column-gap: 0.5rem; }
+html body .sp-instruments .gap-y-2 { row-gap: 0.5rem; }
+html body .sp-instruments .mx-auto { margin-left: auto; margin-right: auto; }
+html body .sp-instruments .aspect-square { aspect-ratio: 1 / 1; }
+html body .sp-instruments .w-full { width: 100%; }
+html body .sp-instruments .max-w-8 { max-width: 2rem; }
+html body .sp-instruments .rounded-full { border-radius: 9999px !important; }
+html body .sp-instruments .text-center { text-align: center; }
+html body .sp-instruments .pb-1 { padding-bottom: 0.25rem; }
+html body .sp-instruments .mt-5 { margin-top: 1.25rem; }
+html body .sp-instruments .mb-4 { margin-bottom: 1rem; }
+html body .sp-instruments .relative { position: relative; }
+html body .sp-instruments .block { display: block; }
+html body .sp-instruments .inline-flex { display: inline-flex; }
+html body .sp-instruments .items-center { align-items: center; }
+html body .sp-instruments .gap-2 { gap: 0.5rem; }
+html body .sp-instruments .gap-1\.5 { gap: 0.375rem; }
+html body .sp-instruments .text-fg-subtle { color: var(--sp-fg-subtle); }
+html body .sp-instruments .chart-tick.label { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-stretch: 118%; }
