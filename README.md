@@ -1,6 +1,8 @@
 # Saasparilla for Nebula
 
-A free admin theme for Magento Open Source, built on the [Qoliber Nebula](https://qoliber.com/nebula-admin.html) admin and styled as [Saasparilla](https://saasparilla.vercel.app): warm paper, ink rules instead of cards, square corners, no shadows, Archivo, one orange used only to mark state.
+A free theme for the Magento Open Source admin. It needs [Nebula](https://qoliber.com/nebula-admin.html), Qoliber's replacement for the standard Magento admin, which is free with a key from their site; this theme changes how Nebula looks.
+
+The look comes from [Saasparilla](https://saasparilla.vercel.app), a design system by Christopher Dowson: paper-coloured surfaces, thin black lines where other admins use boxed panels, square corners, no drop shadows, the Archivo typeface, and a single orange kept for the current page, today, and the main button on a screen.
 
 ![The dashboard](docs/dashboard.png)
 
@@ -88,5 +90,5 @@ works; a symlink to a sibling folder does not. On Magento 2.4.9 `cache:flush` ca
 This package is released under the MIT licence; see `LICENSE`.
 
 - Archivo, by Omnibus-Type, under the SIL Open Font License 1.1 (`src/Skin/view/adminhtml/web/fonts/LICENSE-Archivo.txt`).
-- `saasparilla-charts.js` is the chart library from the Saasparilla theme, included by its author under this package's licence.
+- `saasparilla-charts.js` is the chart library from the Saasparilla theme, included by Christopher Dowson, its author, under this package's licence.
 - Nebula is by Qoliber under the Nebula Community License and is a dependency, not part of this package.
