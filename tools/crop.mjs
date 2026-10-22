@@ -1,0 +1,13 @@
+import { chromium } from 'playwright-core';
+const [,, statePath, url, selector, out, mode] = process.argv;
+const browser = await chromium.launch({ executablePath: process.env.CHROME, args:['--ignore-certificate-errors'] });
+const ctx = await browser.newContext({ viewport:{width:1440,height:1000}, ignoreHTTPSErrors:true, storageState: statePath, deviceScaleFactor: 2 });
+const page = await ctx.newPage();
+await page.goto(url, { waitUntil: 'networkidle' });
+await page.evaluate(m => document.documentElement.classList.toggle('dark', m === 'dark'), mode || 'light');
+const el = page.locator(selector).first();
+await el.scrollIntoViewIfNeeded();
+await page.waitForTimeout(400);
+await el.screenshot({ path: out });
+console.log('saved', out);
+await browser.close();

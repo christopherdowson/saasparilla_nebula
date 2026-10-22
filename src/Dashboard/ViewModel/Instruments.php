@@ -1,8 +1,11 @@
 <?php
 /**
- * Figures for the dashboard instruments, read straight from the sales and
- * customer tables. Months and days follow the store's configured timezone.
- * Revenue is base grand total less refunds, cancelled orders excluded.
+ * Figures for the dashboard instruments, read from the sales and customer
+ * tables. They follow the dashboard's scope switcher (store, website or
+ * group), use the base currency, and group months and days by the store's
+ * configured timezone. Revenue is Magento's own definition: subtotal less
+ * discounts, refunds and cancellations, before tax and shipping. Results are
+ * cached for five minutes per scope.
  */
 declare(strict_types=1);
 
@@ -10,9 +13,13 @@ namespace MFRG\SaasparillaDashboard\ViewModel;
 
 use DateTimeImmutable;
 use DateTimeZone;
+use Magento\Framework\App\CacheInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\RequestInterface;
 use Magento\Framework\App\ResourceConnection;
+use Magento\Framework\DB\Select;
 use Magento\Framework\Pricing\PriceCurrencyInterface;
+use Magento\Framework\Serialize\SerializerInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Magento\Framework\UrlInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
@@ -22,6 +29,8 @@ use Throwable;
 
 class Instruments implements ArgumentInterface
 {
+    public const CACHE_TAG = 'MFRG_DASHBOARD';
+    private const CACHE_LIFETIME = 300;
     private const EXCLUDED_STATES = ['canceled'];
     private const OPEN_STATES = ['new', 'processing'];
 
@@ -29,12 +38,9 @@ class Instruments implements ArgumentInterface
     private const REVENUE = '(%1$s.base_subtotal - COALESCE(%1$s.base_subtotal_refunded, 0) - COALESCE(%1$s.base_subtotal_canceled, 0)'
         . ' - ABS(COALESCE(%1$s.base_discount_amount, 0)) + COALESCE(%1$s.base_discount_refunded, 0) - COALESCE(%1$s.base_discount_canceled, 0))';
 
-    private function revenueExpr(string $alias): string
-    {
-        return 'SUM(' . sprintf(self::REVENUE, $alias) . ')';
-    }
-
     private ?array $data = null;
+    private ?array $storeIds = null;
+    private bool $scopeResolved = false;
 
     public function __construct(
         private readonly ResourceConnection $resource,
@@ -43,16 +49,37 @@ class Instruments implements ArgumentInterface
         private readonly PaymentHelper $paymentHelper,
         private readonly ScopeConfigInterface $scopeConfig,
         private readonly StoreManagerInterface $storeManager,
-        private readonly UrlInterface $url
+        private readonly UrlInterface $url,
+        private readonly RequestInterface $request,
+        private readonly CacheInterface $cache,
+        private readonly SerializerInterface $serializer
     ) {
     }
 
     /**
-     * Everything the template needs, computed once per request.
+     * Everything the template needs, computed once per request and cached per scope.
      */
     public function getData(): array
     {
-        return $this->data ??= $this->build();
+        if ($this->data !== null) {
+            return $this->data;
+        }
+        $key = 'mfrg_dashboard_' . md5($this->serializer->serialize([
+            $this->storeIds(),
+            $this->targets(),
+            date('Y-m-d H:i', (int) (time() / 300) * 300),
+        ]));
+        $cached = $this->cache->load($key);
+        if ($cached) {
+            try {
+                return $this->data = $this->serializer->unserialize($cached);
+            } catch (Throwable) {
+                // fall through and rebuild
+            }
+        }
+        $this->data = $this->build();
+        $this->cache->save($this->serializer->serialize($this->data), $key, [self::CACHE_TAG], self::CACHE_LIFETIME);
+        return $this->data;
     }
 
     public function getOrdersUrl(): string
@@ -63,7 +90,9 @@ class Instruments implements ArgumentInterface
     public function getCurrencyCode(): string
     {
         try {
-            return (string) $this->storeManager->getStore()->getBaseCurrencyCode();
+            $ids = $this->storeIds();
+            $store = $ids ? $this->storeManager->getStore($ids[0]) : $this->storeManager->getStore();
+            return (string) $store->getBaseCurrencyCode();
         } catch (Throwable) {
             return 'USD';
         }
@@ -104,6 +133,56 @@ class Instruments implements ArgumentInterface
         return ($now - $before) / $before * 100;
     }
 
+    /**
+     * Store ids for the dashboard's scope switcher, or null for every store.
+     *
+     * @return int[]|null
+     */
+    private function storeIds(): ?array
+    {
+        if ($this->scopeResolved) {
+            return $this->storeIds;
+        }
+        $this->scopeResolved = true;
+        try {
+            if ($store = $this->request->getParam('store')) {
+                $this->storeIds = [(int) $this->storeManager->getStore($store)->getId()];
+            } elseif ($website = $this->request->getParam('website')) {
+                $this->storeIds = array_map('intval', $this->storeManager->getWebsite($website)->getStoreIds());
+            } elseif ($group = $this->request->getParam('group')) {
+                $this->storeIds = array_map('intval', $this->storeManager->getGroup($group)->getStoreIds());
+            }
+        } catch (Throwable) {
+            $this->storeIds = null;
+        }
+        return $this->storeIds;
+    }
+
+    /**
+     * @return array{orders_per_day: int, overdue_days: int}
+     */
+    private function targets(): array
+    {
+        return [
+            'orders_per_day' => max(1, (int) $this->scopeConfig->getValue('mfrg_dashboard/targets/orders_per_day')),
+            'overdue_days' => max(0, (int) $this->scopeConfig->getValue('mfrg_dashboard/targets/overdue_days')),
+        ];
+    }
+
+    private function revenueExpr(string $alias): string
+    {
+        return 'SUM(' . sprintf(self::REVENUE, $alias) . ')';
+    }
+
+    private function scoped(Select $select, string $column): Select
+    {
+        $ids = $this->storeIds();
+        if ($ids) {
+            $select->where($column . ' IN (?)', $ids);
+        }
+        return $select;
+    }
+
     private function build(): array
     {
         $tz = new DateTimeZone($this->timezone->getConfigTimezone());
@@ -112,6 +191,7 @@ class Instruments implements ArgumentInterface
         $prevStart = $monthStart->modify('-1 month');
         $seriesStart = $monthStart->modify('-23 months');
         $offset = $now->format('P');
+        $targets = $this->targets();
 
         $months = $this->monthlySeries($seriesStart, $offset);
         $keyNow = $monthStart->format('Y-m');
@@ -133,10 +213,7 @@ class Instruments implements ArgumentInterface
 
         $thisMonth = $months[$keyNow] ?? ['orders' => 0, 'revenue' => 0.0];
         $lastMonth = $months[$keyPrev] ?? ['orders' => 0, 'revenue' => 0.0];
-
         $customers = $this->newCustomers($prevStart, $monthStart, $offset);
-        $target = max(1, (int) $this->scopeConfig->getValue('mfrg_dashboard/targets/orders_per_day'));
-        $overdueDays = max(0, (int) $this->scopeConfig->getValue('mfrg_dashboard/targets/overdue_days'));
 
         return [
             'month_name' => $monthStart->format('F'),
@@ -159,9 +236,9 @@ class Instruments implements ArgumentInterface
                 'last_year' => $now->modify('-1 year')->format('Y'),
             ],
             'share' => $this->paymentShare($monthStart),
-            'overdue' => $this->overdue($now, $overdueDays),
-            'calendar' => $this->calendar($now, $monthStart, $offset, $target),
-            'target' => $target,
+            'overdue' => $this->overdue($now, $targets['overdue_days']),
+            'calendar' => $this->calendar($now, $monthStart, $offset, $targets['orders_per_day']),
+            'target' => $targets['orders_per_day'],
         ];
     }
 
@@ -171,18 +248,17 @@ class Instruments implements ArgumentInterface
     private function monthlySeries(DateTimeImmutable $from, string $offset): array
     {
         $conn = $this->resource->getConnection();
-        $table = $this->resource->getTableName('sales_order');
         $select = $conn->select()
-            ->from(['o' => $table], [
+            ->from(['o' => $this->resource->getTableName('sales_order')], [
                 'm' => new \Zend_Db_Expr("DATE_FORMAT(CONVERT_TZ(o.created_at, '+00:00', " . $conn->quote($offset) . "), '%Y-%m')"),
                 'orders' => new \Zend_Db_Expr('COUNT(*)'),
                 'revenue' => new \Zend_Db_Expr($this->revenueExpr('o')),
             ])
-            ->where('state NOT IN (?)', self::EXCLUDED_STATES)
-            ->where('created_at >= ?', $this->utc($from))
+            ->where('o.state NOT IN (?)', self::EXCLUDED_STATES)
+            ->where('o.created_at >= ?', $this->utc($from))
             ->group('m');
         $out = [];
-        foreach ($conn->fetchAll($select) as $row) {
+        foreach ($conn->fetchAll($this->scoped($select, 'o.store_id')) as $row) {
             $out[$row['m']] = ['orders' => (int) $row['orders'], 'revenue' => (float) $row['revenue']];
         }
         return $out;
@@ -200,11 +276,9 @@ class Instruments implements ArgumentInterface
     {
         $conn = $this->resource->getConnection();
         $select = $conn->select()
-            ->from(['o' => $this->resource->getTableName('sales_order')], [
-                new \Zend_Db_Expr($this->revenueExpr('o')),
-            ])
-            ->where('state NOT IN (?)', self::EXCLUDED_STATES);
-        return (float) $conn->fetchOne($select);
+            ->from(['o' => $this->resource->getTableName('sales_order')], [new \Zend_Db_Expr($this->revenueExpr('o'))])
+            ->where('o.state NOT IN (?)', self::EXCLUDED_STATES);
+        return (float) $conn->fetchOne($this->scoped($select, 'o.store_id'));
     }
 
     /**
@@ -214,13 +288,13 @@ class Instruments implements ArgumentInterface
     {
         $conn = $this->resource->getConnection();
         $select = $conn->select()
-            ->from($this->resource->getTableName('customer_entity'), [
-                'm' => new \Zend_Db_Expr("DATE_FORMAT(CONVERT_TZ(created_at, '+00:00', " . $conn->quote($offset) . "), '%Y-%m')"),
+            ->from(['c' => $this->resource->getTableName('customer_entity')], [
+                'm' => new \Zend_Db_Expr("DATE_FORMAT(CONVERT_TZ(c.created_at, '+00:00', " . $conn->quote($offset) . "), '%Y-%m')"),
                 'n' => new \Zend_Db_Expr('COUNT(*)'),
             ])
-            ->where('created_at >= ?', $this->utc($prevStart))
+            ->where('c.created_at >= ?', $this->utc($prevStart))
             ->group('m');
-        $byMonth = $conn->fetchPairs($select);
+        $byMonth = $conn->fetchPairs($this->scoped($select, 'c.store_id'));
         return [
             'now' => (int) ($byMonth[$monthStart->format('Y-m')] ?? 0),
             'prev' => (int) ($byMonth[$prevStart->format('Y-m')] ?? 0),
@@ -245,7 +319,7 @@ class Instruments implements ArgumentInterface
             ->where('o.created_at >= ?', $this->utc($monthStart))
             ->group('p.method')
             ->order('amount DESC');
-        $rows = $conn->fetchAll($select);
+        $rows = $conn->fetchAll($this->scoped($select, 'o.store_id'));
         $total = array_sum(array_map(static fn($r) => (float) $r['amount'], $rows));
         $out = [];
         foreach (array_slice($rows, 0, 5) as $row) {
@@ -287,7 +361,7 @@ class Instruments implements ArgumentInterface
             ->where('o.state IN (?)', self::OPEN_STATES)
             ->where('s.entity_id IS NULL')
             ->where('o.created_at <= ?', $this->utc($cutoff));
-        $row = $conn->fetchRow($select) ?: ['n' => 0, 'oldest' => null];
+        $row = $conn->fetchRow($this->scoped($select, 'o.store_id')) ?: ['n' => 0, 'oldest' => null];
         $oldestDays = null;
         if (!empty($row['oldest'])) {
             $oldest = new DateTimeImmutable($row['oldest'], new DateTimeZone('UTC'));
@@ -305,14 +379,14 @@ class Instruments implements ArgumentInterface
     {
         $conn = $this->resource->getConnection();
         $select = $conn->select()
-            ->from($this->resource->getTableName('sales_order'), [
-                'd' => new \Zend_Db_Expr("DATE(CONVERT_TZ(created_at, '+00:00', " . $conn->quote($offset) . "))"),
+            ->from(['o' => $this->resource->getTableName('sales_order')], [
+                'd' => new \Zend_Db_Expr("DATE(CONVERT_TZ(o.created_at, '+00:00', " . $conn->quote($offset) . "))"),
                 'n' => new \Zend_Db_Expr('COUNT(*)'),
             ])
-            ->where('state NOT IN (?)', self::EXCLUDED_STATES)
-            ->where('created_at >= ?', $this->utc($monthStart))
+            ->where('o.state NOT IN (?)', self::EXCLUDED_STATES)
+            ->where('o.created_at >= ?', $this->utc($monthStart))
             ->group('d');
-        $perDay = $conn->fetchPairs($select);
+        $perDay = $conn->fetchPairs($this->scoped($select, 'o.store_id'));
 
         $daysInMonth = (int) $monthStart->format('t');
         $today = (int) $now->format('j');

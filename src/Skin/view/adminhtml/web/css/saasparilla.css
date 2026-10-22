@@ -1090,56 +1090,6 @@ html body .nebula-dashboard-lifetime-card {
 }
 
 /* ------------------------------------------------------------------ */
-/* Saasparilla charts: tokens and classes the SVG renderer expects     */
-/* ------------------------------------------------------------------ */
-
-html body {
-  --sp-fg: var(--nebula-text-primary);
-  --sp-fg-muted: var(--nebula-text-secondary);
-  --sp-fg-subtle: var(--nebula-text-tertiary);
-  --sp-bg: var(--nebula-bg-primary);
-  --sp-chart-ink: var(--nebula-text-primary);
-  --sp-chart-muted: var(--nebula-text-muted);
-  --sp-chart-grid: var(--nebula-border-light);
-  --sp-chart-empty: var(--nebula-border-default);
-}
-html body .chart { position: relative; }
-html body .chart svg { display: block; width: 100%; overflow: visible; }
-html body .chart-grid { stroke: var(--sp-chart-grid); stroke-width: 1; shape-rendering: crispEdges; }
-html body .chart-baseline { stroke: var(--sp-rule); stroke-width: 1; shape-rendering: crispEdges; }
-html body .chart-tick {
-  fill: var(--sp-fg-subtle);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  font-variant-numeric: tabular-nums;
-}
-html body .chart-crosshair { stroke: var(--sp-fg); stroke-width: 1; shape-rendering: crispEdges; }
-html body .chart-dot { stroke: var(--sp-bg); stroke-width: 2; }
-html body .chart-legend {
-  display: flex; flex-wrap: wrap; align-items: center; column-gap: 1.25rem; row-gap: 0.25rem;
-  color: var(--sp-fg-muted);
-  font-size: 11px; line-height: 1rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-stretch: 118%;
-}
-html body .chart-key { display: inline-block; height: 2px; width: 1rem; }
-html body .chart-key-dot { display: inline-block; width: 0.625rem; height: 0.625rem; border-radius: 9999px; }
-html body .chart-tooltip {
-  pointer-events: none; position: absolute; top: 0; left: 0; z-index: 10; min-width: 10rem;
-  border: 1px solid var(--sp-rule); background: var(--sp-bg); padding: 0.625rem 0.75rem; font-size: 12px;
-  opacity: 0; transition: opacity 100ms;
-}
-html body .chart-tooltip[data-show="true"] { opacity: 1; }
-html body .chart-tooltip .label {
-  font-size: 11px; line-height: 1rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-stretch: 118%;
-}
-html body .chart-tooltip .text-fg { color: var(--sp-fg); }
-html body .chart-tooltip .text-fg-muted { color: var(--sp-fg-muted); }
-html body .sp-chart { min-height: 280px; }
-html body .sp-chart .sr-only {
-  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
-}
-
-/* ------------------------------------------------------------------ */
 /* Round 8: section pass (order view, panel actions, config nav)       */
 /* ------------------------------------------------------------------ */
 
